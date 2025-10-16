@@ -1,19 +1,22 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 import { WeatherData } from "../types";
+
+// =================================================================
+// IMPORTANT: PASTE YOUR GEMINI API KEY IN THE LINE BELOW
+// =================================================================
+const API_KEY = "AIzaSyD3TIvFsa3dGGOMG33g9-c-KX5QQ8emvrk";
+// =================================================================
+
 
 let ai: GoogleGenAI | null = null;
 
 const getAI = (): GoogleGenAI => {
-    if (!ai) {
-        // FIX: The API key MUST be obtained from the environment variable `process.env.API_KEY` as per the coding guidelines.
-        const apiKey = process.env.API_KEY;
+    if (!API_KEY || API_KEY === "YOUR_API_KEY_HERE") {
+        throw new Error("API_KEY_MISSING");
+    }
 
-        if (!apiKey) {
-            // Throw a specific error that can be caught and handled gracefully in the UI.
-            throw new Error("API_KEY_MISSING");
-        }
-        ai = new GoogleGenAI({ apiKey });
+    if (!ai) {
+        ai = new GoogleGenAI({ apiKey: API_KEY });
     }
     return ai;
 }
@@ -42,8 +45,7 @@ export const getChatbotResponse = async (prompt: string): Promise<string> => {
     } catch (error) {
         console.error("Gemini API call failed:", error);
         if (error instanceof Error && error.message.startsWith("API_KEY_MISSING")) {
-            // FIX: Updated error message to refer to `API_KEY` instead of `VITE_API_KEY`.
-            return "Configuration Error: The Gemini API key is missing. Please ask the site administrator to set the `API_KEY` environment variable in the deployment settings.";
+            return "Configuration Error: The Gemini API key is missing. Please open `services/geminiService.ts` and paste your key in the `API_KEY` constant.";
         }
         return "I'm sorry, but I'm having trouble connecting to my brain right now. Please try again in a moment.";
     }
@@ -85,8 +87,7 @@ export const getWeatherFromGemini = async (location: string): Promise<WeatherDat
     } catch (error) {
         console.error("Gemini API call for weather failed:", error);
         if (error instanceof Error && error.message.startsWith("API_KEY_MISSING")) {
-            // FIX: Updated error message to refer to `API_KEY` instead of `VITE_API_KEY`.
-            throw new Error("Configuration Error: The Gemini API key is missing. Please ask the site administrator to set the `API_KEY` environment variable in the deployment settings.");
+            throw new Error("Configuration Error: The Gemini API key is missing. Please open `services/geminiService.ts` and paste your key in the `API_KEY` constant.");
         }
         throw new Error("I'm sorry, I couldn't fetch the real-time weather data. Please try again.");
     }
